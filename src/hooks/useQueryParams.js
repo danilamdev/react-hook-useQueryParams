@@ -11,14 +11,15 @@ export function useQueryParams(initialState) {
   const [queryObject, updateQuery] = useReducer((state, current) => ({...state,...current}), initState)
 
   const onChangeQuery = (value) => {
+    console.log('change query')
     let data = {...queryObject, ...value}
 
     updateQuery(data)
-    dispatchEvent(new CustomEvent('DANIEL', {detail: data }))
+    dispatchEvent(new CustomEvent('filter', {detail: data }))
   }
 
   useEffect(() => {
-    const danielEvent = (e) => {
+    const filterEvent = (e) => {
       let data = {}
   
       Object.entries(e.detail)
@@ -27,19 +28,21 @@ export function useQueryParams(initialState) {
         } )
 
       const url = new URLSearchParams(data)
-      const urlString = url.size > 0 ? `/?${url.toString()}` : '/'
+      const urlString = url.size > 0 ? `/search?${url.toString()}` : '/'
       window.history.pushState({}, '', urlString)
     } 
     
-    window.addEventListener('DANIEL', danielEvent )
+    window.addEventListener('filter', filterEvent )
 
     return () => {
-      window.removeEventListener('DANIEL', danielEvent)
+      window.removeEventListener('filter', filterEvent)
     }  
   }, [])
 
-  const url = new URLSearchParams(queryObject)
-  const queryUrl = url.size > 0 ?  {...initialState, ...Object.fromEntries(url)} : initialState
+  const urlParams = new URLSearchParams(window.location.search)
+  const queryUrl = urlParams.size > 0 ?  {...initialState, ...Object.fromEntries(urlParams)} : initialState
+
+  console.log('update url', window.location)
 
   return { queryUrl, onChangeQuery, queryObject }
 }

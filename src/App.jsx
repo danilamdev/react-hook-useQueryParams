@@ -32,7 +32,7 @@ function App() {
     )
   )
   
-  
+  console.log('render app')
   return (
    <main>
     <h1>React-url</h1>
